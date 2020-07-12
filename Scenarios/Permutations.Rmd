@@ -1,0 +1,2740 @@
+---
+title: "Swarm learning distributions"
+author: "Stefanie Herresthal"
+date: "3/16/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+load("../../annotations.RData")
+```
+
+
+# Figure 2
+##  2B
+
+```{r}
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE",] ), size = 0.05*5471*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL",] ), size = 0.05*5471*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids ,] ), size =0.05*5471*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,] ), size = 0.05*5471*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.003*5471*0.8), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.297*5471*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.003*5471*0.2), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.297*5471*0.2), replace = F))) 
+
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 0.42*5471*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 0.18*5471*0.8, replace = F))) 
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 0.42*5471*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 0.18*5471*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+node_test <- rbind(rbind(node_1_test, node_2_test), node_3_test)
+
+dir <- "Fig_2B"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/","node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_test, file = paste0(dir, "/", "node_test.txt"), row.names = F, quote = F)
+```
+
+##  2C
+```{r}
+# 100 permutations
+for(i in 1:100){
+  
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE",] ), size = 21*50*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL",] ), size = 21*50*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids ,] ), size = 21*50*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,] ), size = 21*50*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(21*1*0.8), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(21*99*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(21*1*0.2), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(21*99*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 21*70*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 21*30*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 21*70*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 21*30*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "Figure_2C"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/","node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/","node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/","node_3_train.txt"), row.names = F, quote = F)
+
+node_test <- rbind(rbind(node_1_test, node_2_test), node_3_test)
+write.table(node_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+```
+
+## 2D
+
+```{r}
+studies <- unique(annotation.A2$GSE)
+node_1_train <- matrix("", nrow = 8348, ncol= 100)
+node_1_test <- matrix("", nrow = 8348, ncol= 100)
+node_2_train <- matrix("", nrow = 8348, ncol= 100)
+node_2_test <- matrix("", nrow = 8348, ncol= 100)
+node_3_train <- matrix("", nrow = 8348, ncol= 100)
+node_3_test <- matrix("", nrow = 8348, ncol= 100)
+
+k <- 1
+for(i in 1:100){
+print(i)
+# sample 3x7 and 1x6 studies in such a way that in each node there is min 5% and max 95% AML cases in each node.
+node_1_AML <- node_2_AML <- node_3_AML <- 0
+
+while((node_1_AML < 0.05 | node_1_AML > 0.95) |
+      (node_2_AML < 0.05 | node_2_AML > 0.95) |
+      (node_3_AML < 0.05 | node_3_AML > 0.95)){
+  print(paste("permutation", k))
+  set.seed(k); node_1_GSE <- sample(studies, size = 21)
+  node_1_AML <- sum(annotation.A2$GSE %in% node_1_GSE & annotation.A2$Condition == "CASE") / 8348
+  set.seed(k); node_2_GSE <- sample(studies[!studies %in% node_1_GSE], size = 21)
+  node_2_AML <- sum(annotation.A2$GSE %in% node_2_GSE & annotation.A2$Condition == "CASE") / 8348
+  set.seed(k); node_3_GSE <- sample(studies[!studies %in% c(node_1_GSE, node_2_GSE)], size = 21)
+  node_3_AML <- sum(annotation.A2$GSE %in% node_3_GSE & annotation.A2$Condition == "CASE") / 8348
+  k <- k+ 1
+}
+
+# then sample 80% training data and 20% test data from that node
+set.seed(i); tmp  <- sample(x = rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE,]), size = 0.8 * length(rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE,]))) # training data
+
+node_1_train[1:length(tmp),i] <- tmp
+
+used_ids <- tmp
+
+# testing data node 1
+set.seed(i); tmp <- rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE,])[!rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE,]) %in% used_ids]
+node_1_test[1:length(tmp),i] <- tmp
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- sample(x = rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE,]), size = 0.8 * length(rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE,]))) # training data
+node_2_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE,])[!rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE,]) %in% used_ids]
+node_2_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp  <- sample(x = rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE,]), size = 0.8 * length(rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE,]))) # training data
+node_3_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE,])[!rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE,]) %in% used_ids]
+node_3_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+}
+
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+
+dir <- "Fig_2D"
+dir.create(dir)
+
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+# all test sets were combined to one common test set ("node 4")
+```
+
+## 2E
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE",] ), size = 0.10*2588*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL",] ), size = 0.10*2588*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids ,] ), size = 0.10*2588*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,] ), size = 0.10*2588*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.3*2588*0.8), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.3*2588*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.3*2588*0.2), replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = floor(0.3*2588*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 0.6*2588*0.8, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 0.6*2588*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A2[annotation.A2$Condition == "CASE" & !rownames(annotation.A2) %in% used_ids,]), size = 0.6*2588*0.2, replace = F), 
+          c(sample(rownames(annotation.A2[annotation.A2$Condition == "CONTROL" & !rownames(annotation.A2) %in% used_ids,]), size = 0.6*2588*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "Fig_2E"
+dir.create(dir)
+
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir,"/",  "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir,"/",  "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir,"/",  "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir,"/",  "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir,"/",  "node_3_test.txt"), row.names = F, quote = F)
+
+# all test sets were combined to one common test set ("node 4")
+```
+
+
+## 2F 
+
+```{r}
+node_1_train <- matrix("", nrow = 8000, ncol= 100)
+node_1_test <- matrix("", nrow = 8000, ncol= 100)
+node_2_train <- matrix("", nrow = 8000, ncol= 100)
+node_2_test <- matrix("", nrow = 8000, ncol= 100)
+node_3_train <- matrix("", nrow = 8000, ncol= 100)
+node_3_test <- matrix("", nrow = 8000, ncol= 100)
+
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1), size = 0.8*length(rownames(annotation.A1)), replace = F))
+node_1_train[1:length(tmp),i] <- tmp
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- (sample(rownames(annotation.A1)[!rownames(annotation.A1) %in% used_ids], size = 0.2*length(rownames(annotation.A1)), replace = F)) 
+node_1_test[1:length(tmp),i] <- tmp
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A2), size = 0.8*length(rownames(annotation.A2)), replace = F))
+node_2_train[1:length(tmp),i] <- tmp
+used_ids <- tmp
+
+# node 2 test
+set.seed(i); tmp <- (sample(rownames(annotation.A2)[!rownames(annotation.A2) %in% used_ids], size = 0.2*length(rownames(annotation.A2)), replace = F)) 
+node_2_test[1:length(tmp),i] <- tmp
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3), size = 0.8*length(rownames(annotation.A3)), replace = F))
+node_3_train[1:length(tmp),i] <- tmp
+used_ids <- tmp
+
+# node 3 test
+set.seed(i); tmp <- (sample(rownames(annotation.A3)[!rownames(annotation.A3) %in% used_ids], size = 0.2*length(rownames(annotation.A3)), replace = F)) 
+node_3_test[1:length(tmp),i] <- tmp
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "Fig_2F"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+```
+
+# Figure 3
+## 3AB
+
+```{r}
+permutations <- 50
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = 206, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = 206, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 206, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 206, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 206, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 206, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 157, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =157, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir <- "Fig_3AB"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/","node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/","node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir, "/","test.txt"), row.names = F, quote = F)
+```
+
+
+
+## 3CD
+
+```{r}
+permutations <- 50
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = 103, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# node 4 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F))) 
+
+if(1 == i){
+  node_4_train <- tmp
+} else {
+  node_4_train <- cbind(node_4_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# node 5 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F))) 
+
+if(1 == i){
+  node_5_train <- tmp
+} else {
+  node_5_train <- cbind(node_5_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# node 6 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 103, replace = F))) 
+
+if(1 == i){
+  node_6_train <- tmp
+} else {
+  node_6_train <- cbind(node_6_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+
+# test
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 157, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =157, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+
+dir <- "Fig_3CD"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir,  "/","node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir,  "/","node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir,  "/","node_3_train.txt"), row.names = F, quote = F)
+write.table(node_4_train, file = paste0(dir,  "/","node_4_train.txt"), row.names = F, quote = F)
+write.table(node_5_train, file = paste0(dir,  "/","node_5_train.txt"), row.names = F, quote = F)
+write.table(node_6_train, file = paste0(dir,  "/","node_6_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir,  "/","test.txt"), row.names = F, quote = F)
+
+```
+
+
+## 3EF
+
+```{r}
+scenario_name = "Fig_3EF"
+n_n1_case = 200
+n_n1_control = 200
+n_n2_case = 75
+n_n2_control = 75
+n_n3_case = 200
+n_n3_control = 200
+
+n_testA_case = 100
+n_testA_control = 100
+
+n_test_case = sum(annotation.B$setting_1_labels == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.B$setting_1_labels == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i+100); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i+200); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i+ 300); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+  
+
+  # testA
+  set.seed(i+400); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_testA_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_testA_control, replace = F))) 
+  if(1 == i){
+    testA <- tmp
+  } else {
+    testA <- cbind(testA, tmp)
+  }
+  
+
+
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testA) <- paste0("perm_", 1:permutations)
+
+
+dir.create(scenario_name)
+write.table(node_1_train, file = paste0(scenario_name, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(scenario_name, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(scenario_name, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(testA, file = paste0(scenario_name, "/", "test_A.txt"), row.names = F, quote = F)
+```
+
+## 3GH
+
+```{r}
+n_n1_case = 200
+n_n1_control = 200
+n_n2_case = 75
+n_n2_control = 75
+n_n3_case = 200
+n_n3_control = 100
+n_test_case = 250
+n_test_control = 250
+
+permutations <- 50
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i+100); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = n_n1_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = n_n1_control, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i+200); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_control, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i+300); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_control, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i+400); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_test_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =n_test_control, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir.create("Fig_3GH")
+dir <- "Fig_3GH"
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir, "/", "test.txt"), row.names = F, quote = F)
+```
+
+## 3IJ
+```{r}
+n_n1_case = 50
+n_n1_control = 50
+n_n2_case = 75
+n_n2_control = 75
+n_n3_case = 200
+n_n3_control = 200
+n_test_case = 100
+n_test_control = 100
+permutations = 50
+
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i+100); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = n_n1_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = n_n1_control, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i+200); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_control, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i+300); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_control, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i+400); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_test_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =n_test_control, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir.create("Fig_3IJ")
+dir <- "Fig_3IJ"
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir, "/", "test.txt"), row.names = F, quote = F)
+```
+
+## 3KL
+
+```{r}
+n_n1_case = 50
+n_n1_control = 50
+n_n2_case = 75
+n_n2_control = 75
+n_n3_case = 200
+n_n3_control = 200
+n_test_case = 100
+n_test_control = 250
+permutations = 50
+
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i+100); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = n_n1_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = n_n1_control, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i+200); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_control, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i+300); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_control, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i+400); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_test_case, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =n_test_control, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir <- "Fig_3KL"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir, "/", "test.txt"), row.names = F, quote = F)
+```
+
+
+# Figure 4
+
+test set A --> Figure 4B
+test set C --> Figure 4C
+test set D --> Figure 4D
+
+```{r}
+scenario_name = "Figure_4"
+n_n1_case = 20
+n_n1_control = 80
+n_n2_case = 10
+n_n2_control = 90
+n_n3_case = 5
+n_n3_control = 95
+
+n_testA_case = 99
+n_testA_control=  100
+n_testC_case = 99
+n_testC_control = 500
+n_testD_case = 50
+n_testD_control = 500
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testA
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testA_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testA_control, replace = F))) 
+  if(1 == i){
+    testA <- tmp
+  } else {
+    testA <- cbind(testA, tmp)
+  }
+
+
+  # testC
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_control, replace = F))) 
+  if(1 == i){
+    testC <- tmp
+  } else {
+    testC <- cbind(testC, tmp)
+  }
+
+
+  # testD
+  set.seed(3000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_control, replace = F))) 
+  if(1 == i){
+    testD <- tmp
+  } else {
+    testD <- cbind(testD, tmp)
+  }
+  
+ 
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testA) <- paste0("perm_", 1:permutations)
+colnames(testC) <- paste0("perm_", 1:permutations)
+colnames(testD) <- paste0("perm_", 1:permutations)
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir, "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "node_3_train.txt"), row.names = F, quote = F)
+
+#write.table(test, file = paste0(dir, "test.txt"), row.names = F, quote = F)
+write.table(testA, file = paste0(dir, "test_A.txt"), row.names = F, quote = F)
+write.table(testC, file = paste0(dir, "test_C.txt"), row.names = F, quote = F)
+write.table(testD, file = paste0(dir, "test_D.txt"), row.names = F, quote = F)
+
+```
+
+
+
+# ED Figure 2
+## 2A (Dataset A1)
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE",] ), size = 0.05*2218*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL",] ), size = 0.05*2218*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids ,] ), size =0.05*2218*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,] ), size = 0.05*2218*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.003*2218*0.8), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.297*2218*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.003*2218*0.2), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.297*2218*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 0.42*2218*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 0.18*2218*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 0.42*2218*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 0.18*2218*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+
+dir <- "ED_Fig_2A"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir,  "/","node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir,  "/","node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir,  "/","node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir,  "/","node_3_test.txt"), row.names = F, quote = F)
+```
+
+## 2B (Dataset A2)
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE",] ), size = 0.05*1073*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL",] ), size = 0.05*1073*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids ,] ), size =0.05*1073*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,] ), size = 0.05*1073*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.003*1073*0.8), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.297*1073*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.003*1073*0.2), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.297*1073*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 0.42*1073*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 0.18*1073*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 0.42*1073*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 0.18*1073*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_2B"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+```
+
+# ED Figure 3
+
+## ED Figure 3C (Dataset A1)
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE",] ), size = 8*50*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL",] ), size = 8*50*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids ,] ), size = 8*50*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,] ), size = 8*50*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(8*1*0.8), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(8*99*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(8*1*0.2), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(8*99*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 8*70*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 8*30*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 8*70*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 8*30*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_3C"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+```
+
+## ED Figure 3D (Dataset A3)
+
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE",] ), size = 3*50*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL",] ), size = 3*50*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids ,] ), size = 3*50*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,] ), size = 3*50*0.2, replace = F))) 
+
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(3*1*0.8), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(3*99*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(3*1*0.2), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(3*99*0.2), replace = F))) 
+
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 3*70*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 3*30*0.8, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 3*70*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 3*30*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_3D"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+```
+
+# ED Fig. 4
+
+## ED Fig. 4C (Dataset A1)
+
+```{r}
+studies <- unique(annotation.A1$GSE)
+node_1_train <- matrix("", nrow = 2500, ncol= 100)
+node_1_test <- matrix("", nrow = 2500, ncol= 100)
+node_2_train <- matrix("", nrow = 2500, ncol= 100)
+node_2_test <- matrix("", nrow = 2500, ncol= 100)
+node_3_train <- matrix("", nrow = 2500, ncol= 100)
+node_3_test <- matrix("", nrow = 2500, ncol= 100)
+
+k <- 1
+for(i in 1:100){
+print(i)
+# sample 2x7 and 1x6 studies in such a way that in each node there is min 5% and max 95% AML cases in each node.
+node_1_AML <- node_2_AML <- node_3_AML <- 0
+
+while((node_1_AML < 0.05 | node_1_AML > 0.95) |
+      (node_2_AML < 0.05 | node_2_AML > 0.95) |
+      (node_3_AML < 0.05 | node_3_AML > 0.95)){
+  print(paste("permutation", k))
+  set.seed(k); node_1_GSE <- sample(studies, size = 7)
+  node_1_AML <- sum(annotation.A1$GSE %in% node_1_GSE & annotation.A1$Condition == "CASE") / 2500
+  set.seed(k); node_2_GSE <- sample(studies[!studies %in% node_1_GSE], size = 7)
+  node_2_AML <- sum(annotation.A1$GSE %in% node_2_GSE & annotation.A1$Condition == "CASE") / 2500
+  set.seed(k); node_3_GSE <- sample(studies[!studies %in% c(node_1_GSE, node_2_GSE)], size = 7)
+  node_3_AML <- sum(annotation.A1$GSE %in% node_3_GSE & annotation.A1$Condition == "CASE") / 2500
+  k <- k+ 1
+}
+
+# then sample 80% training data and 20% test data from that node
+set.seed(i); tmp  <- sample(x = rownames(annotation.A1[annotation.A1$GSE %in% node_1_GSE,]), size = 0.8 * length(rownames(annotation.A1[annotation.A1$GSE %in% node_1_GSE,]))) # training data
+
+node_1_train[1:length(tmp),i] <- tmp
+
+used_ids <- tmp
+
+# testing data node 1
+set.seed(i); tmp <- rownames(annotation.A1[annotation.A1$GSE %in% node_1_GSE,])[!rownames(annotation.A1[annotation.A1$GSE %in% node_1_GSE,]) %in% used_ids]
+node_1_test[1:length(tmp),i] <- tmp
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- sample(x = rownames(annotation.A1[annotation.A1$GSE %in% node_2_GSE,]), size = 0.8 * length(rownames(annotation.A1[annotation.A1$GSE %in% node_2_GSE,]))) # training data
+node_2_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- rownames(annotation.A1[annotation.A1$GSE %in% node_2_GSE,])[!rownames(annotation.A1[annotation.A1$GSE %in% node_2_GSE,]) %in% used_ids]
+node_2_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp  <- sample(x = rownames(annotation.A1[annotation.A1$GSE %in% node_3_GSE,]), size = 0.8 * length(rownames(annotation.A1[annotation.A1$GSE %in% node_3_GSE,]))) # training data
+node_3_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp  <- rownames(annotation.A1[annotation.A1$GSE %in% node_3_GSE,])[!rownames(annotation.A1[annotation.A1$GSE %in% node_3_GSE,]) %in% used_ids]
+node_3_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+}
+
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED Fig. 4C"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+# all test sets were combined to one common test set for all noded ("node 4")
+```
+
+## ED Fig. 4D (Dataset A3)
+
+```{r}
+studies <- unique(annotation.A3$GSE)
+node_1_train <- matrix("", nrow = 1181, ncol= 100)
+node_1_test <- matrix("", nrow = 1181, ncol= 100)
+node_2_train <- matrix("", nrow = 1181, ncol= 100)
+node_2_test <- matrix("", nrow = 1181, ncol= 100)
+node_3_train <- matrix("", nrow = 1181, ncol= 100)
+node_3_test <- matrix("", nrow = 1181, ncol= 100)
+
+k <- 1
+for(i in 1:100){
+print(i)
+# sample 3x7 and 1x6 studies in such a way that in each node there is min 5% and max 95% AML cases in each node.
+node_1_AML <- node_2_AML <- node_3_AML <- 0
+
+while((node_1_AML < 0.05 | node_1_AML > 0.95) |
+      (node_2_AML < 0.05 | node_2_AML > 0.95) |
+      (node_3_AML < 0.05 | node_3_AML > 0.95)){
+  print(paste("permutation", k))
+  set.seed(k); node_1_GSE <- sample(studies, size = 7)
+  node_1_AML <- sum(annotation.A3$GSE %in% node_1_GSE & annotation.A3$Condition == "CASE") / 1181
+  set.seed(k); node_2_GSE <- sample(studies[!studies %in% node_1_GSE], size = 7)
+  node_2_AML <- sum(annotation.A3$GSE %in% node_2_GSE & annotation.A3$Condition == "CASE") / 1181
+  set.seed(k); node_3_GSE <- sample(studies[!studies %in% c(node_1_GSE, node_2_GSE)], size = 7)
+  node_3_AML <- sum(annotation.A3$GSE %in% node_3_GSE & annotation.A3$Condition == "CASE") / 1181
+  k <- k+ 1
+}
+
+# then sample 80% training data and 20% test data from that node
+set.seed(i); tmp  <- sample(x = rownames(annotation.A3[annotation.A3$GSE %in% node_1_GSE,]), size = 0.8 * length(rownames(annotation.A3[annotation.A3$GSE %in% node_1_GSE,]))) # training data
+
+node_1_train[1:length(tmp),i] <- tmp
+
+used_ids <- tmp
+
+# testing data node 1
+set.seed(i); tmp <- rownames(annotation.A3[annotation.A3$GSE %in% node_1_GSE,])[!rownames(annotation.A3[annotation.A3$GSE %in% node_1_GSE,]) %in% used_ids]
+node_1_test[1:length(tmp),i] <- tmp
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- sample(x = rownames(annotation.A3[annotation.A3$GSE %in% node_2_GSE,]), size = 0.8 * length(rownames(annotation.A3[annotation.A3$GSE %in% node_2_GSE,]))) # training data
+node_2_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- rownames(annotation.A3[annotation.A3$GSE %in% node_2_GSE,])[!rownames(annotation.A3[annotation.A3$GSE %in% node_2_GSE,]) %in% used_ids]
+node_2_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp  <- sample(x = rownames(annotation.A3[annotation.A3$GSE %in% node_3_GSE,]), size = 0.8 * length(rownames(annotation.A3[annotation.A3$GSE %in% node_3_GSE,]))) # training data
+node_3_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp  <- rownames(annotation.A3[annotation.A3$GSE %in% node_3_GSE,])[!rownames(annotation.A3[annotation.A3$GSE %in% node_3_GSE,]) %in% used_ids]
+node_3_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+}
+
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+
+dir <- "ED_Fig_4D"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+```
+
+## ED Fig. 4E (Dataset A2)
+
+```{r}
+studies <- unique(annotation.A2$GSE)
+node_1_train <- matrix("", nrow = 8348, ncol= 100)
+node_1_test <- matrix("", nrow = 8348, ncol= 100)
+node_2_train <- matrix("", nrow = 8348, ncol= 100)
+node_2_test <- matrix("", nrow = 8348, ncol= 100)
+node_3_train <- matrix("", nrow = 8348, ncol= 100)
+node_3_test <- matrix("", nrow = 8348, ncol= 100)
+
+k <- 1
+for(i in 1:100){
+print(i)
+# sample 3x7 and 1x6 studies in such a way that in each node there is min 5% and max 95% AML cases in each node.
+node_1_AML <- node_2_AML <- node_3_AML <- 0
+node_1_AML_test <- node_2_AML_test <- node_3_AML_test <- 0
+while((node_1_AML < 0.05 | node_1_AML > 0.95) |
+      (node_2_AML < 0.05 | node_2_AML > 0.95) |
+      (node_3_AML < 0.05 | node_3_AML > 0.95) |
+       node_1_AML_test == 0 |
+       node_2_AML_test == 0 |
+       node_3_AML_test == 0){
+  print(paste("permutation", k))
+  set.seed(k); node_1_GSE <- sample(studies, size = 16)
+  node_1_AML <- sum(annotation.A2$GSE %in% node_1_GSE & annotation.A2$Condition == "CASE") / 8348
+  
+  set.seed(k); node_1_GSE_test <- sample(studies[!studies %in% node_1_GSE], 5)
+  node_1_AML_test <- sum(annotation.A2$GSE %in% node_1_GSE_test & annotation.A2$Condition == "CASE") / 8348
+  
+  set.seed(k); node_2_GSE <- sample(studies[!studies %in% c(node_1_GSE_test, node_1_GSE)], size = 16)
+  node_2_AML <- sum(annotation.A2$GSE %in% node_2_GSE & annotation.A2$Condition == "CASE") / 8348
+  
+  set.seed(k); node_2_GSE_test <- sample(studies[!studies %in% c(node_1_GSE, node_2_GSE, node_1_GSE_test)], 5)
+  node_2_AML_test <- sum(annotation.A2$GSE %in% node_2_GSE_test & annotation.A2$Condition == "CASE") / 8348
+  
+  set.seed(k); node_3_GSE <- sample(studies[!studies %in% c(node_1_GSE, node_1_GSE_test, node_2_GSE, node_2_GSE_test)], size = 16)
+  
+  node_3_AML <- sum(annotation.A2$GSE %in% node_3_GSE & annotation.A2$Condition == "CASE") / 8348
+  
+   set.seed(k); node_3_GSE_test <- sample(studies[!studies %in% c(node_1_GSE, node_1_GSE_test, node_2_GSE, node_2_GSE_test, node_3_GSE)], size = 5)
+  node_3_AML_test <- sum(annotation.A2$GSE %in% node_3_GSE_test & annotation.A2$Condition == "CASE") / 8348
+  k <- k+ 1
+}
+
+# trainig data node 1
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE,])
+node_1_train[1:length(tmp),i] <- tmp
+
+# testing data node 1
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_1_GSE_test,])
+node_1_test[1:length(tmp),i] <- tmp
+
+# node 2 train
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE,])
+node_2_train[1:length(tmp),i] <- tmp
+
+# node 2 test
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_2_GSE_test,])
+node_2_test[1:length(tmp),i] <- tmp
+
+# node 2 train
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE,])
+node_3_train[1:length(tmp),i] <- tmp
+
+# node 2 test
+tmp  <- rownames(annotation.A2[annotation.A2$GSE %in% node_3_GSE_test,])
+node_3_test[1:length(tmp),i] <- tmp
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_4E"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+```
+
+
+
+# ED Fig. 5
+
+## ED Fig. 5C (Dataset A1)
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE",] ), size = 0.10*1040*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL",] ), size = 0.10*1040*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids ,] ), size = 0.10*1040*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,] ), size = 0.10*1040*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.3*1040*0.8), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.3*1040*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.3*1040*0.2), replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = floor(0.3*1040*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 0.6*1040*0.8, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 0.6*1040*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A1[annotation.A1$Condition == "CASE" & !rownames(annotation.A1) %in% used_ids,]), size = 0.6*1040*0.2, replace = F), 
+          c(sample(rownames(annotation.A1[annotation.A1$Condition == "CONTROL" & !rownames(annotation.A1) %in% used_ids,]), size = 0.6*1040*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_5C"
+dir.create(dir)
+
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+
+```
+
+
+## ED Fig. 5D (Dataset A3)
+
+```{r}
+# 100 permutations
+for(i in 1:100){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE",] ), size = 0.10*508*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL",] ), size = 0.10*508*0.8, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(tmp, node_1_train)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+# node 1 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids ,] ), size = 0.10*508*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,] ), size = 0.10*508*0.2, replace = F))) 
+if(1 == i){
+  node_1_test <- tmp
+} else {
+  node_1_test <- cbind(tmp, node_1_test)
+}
+dim(node_1_test)
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.3*508*0.8), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.3*508*0.8), replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(tmp, node_2_train)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.3*508*0.2), replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = floor(0.3*508*0.2), replace = F))) 
+length(node_2_test)
+if(1 == i){
+  node_2_test <- tmp
+} else {
+  node_2_test <- cbind(tmp, node_2_test)
+}
+dim(node_2_test)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 0.6*508*0.8, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 0.6*508*0.8, replace = F))) 
+length(node_3_train)
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(tmp, node_3_train)
+}
+dim(node_3_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp <- c(sample(rownames(annotation.A3[annotation.A3$Condition == "CASE" & !rownames(annotation.A3) %in% used_ids,]), size = 0.6*508*0.2, replace = F), 
+          c(sample(rownames(annotation.A3[annotation.A3$Condition == "CONTROL" & !rownames(annotation.A3) %in% used_ids,]), size = 0.6*508*0.2, replace = F))) 
+
+if(1 == i){
+  node_3_test <- tmp
+} else {
+  node_3_test <- cbind(tmp, node_3_test)
+}
+dim(node_3_test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_5D"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+# all three test sets were combined to one common test set ("node 4)
+```
+
+# ED FIg. 6
+
+```{r}
+studies <- unique(annotation.A1.ALL$GSE)
+node_1_train <- matrix("", nrow = 2500, ncol= 100)
+node_1_test <- matrix("", nrow = 2500, ncol= 100)
+node_2_train <- matrix("", nrow = 2500, ncol= 100)
+node_2_test <- matrix("", nrow = 2500, ncol= 100)
+node_3_train <- matrix("", nrow = 2500, ncol= 100)
+node_3_test <- matrix("", nrow = 2500, ncol= 100)
+
+k <- 1
+for(i in 1:100){
+print(i)
+# sample 2x7 and 1x6 studies in such a way that in each node there is min 5% and max 95% AML cases in each node.
+node_1_AML <- node_2_AML <- node_3_AML <- 0
+
+while((node_1_AML < 0.05 | node_1_AML > 0.95) |
+      (node_2_AML < 0.05 | node_2_AML > 0.95) |
+      (node_3_AML < 0.05 | node_3_AML > 0.95)){
+  print(paste("permutation", k))
+  set.seed(k); node_1_GSE <- sample(studies, size = 7)
+  node_1_AML <- sum(annotation.A1.ALL$GSE %in% node_1_GSE & annotation.A1.ALL$Condition == "CASE") / 2500
+  set.seed(k); node_2_GSE <- sample(studies[!studies %in% node_1_GSE], size = 7)
+  node_2_AML <- sum(annotation.A1.ALL$GSE %in% node_2_GSE & annotation.A1.ALL$Condition == "CASE") / 2500
+  set.seed(k); node_3_GSE <- sample(studies[!studies %in% c(node_1_GSE, node_2_GSE)], size = 7)
+  node_3_AML <- sum(annotation.A1.ALL$GSE %in% node_3_GSE & annotation.A1.ALL$Condition == "CASE") / 2500
+  k <- k+ 1
+}
+
+# then sample 80% training data and 20% test data from that node
+set.seed(i); tmp  <- sample(x = rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_1_GSE,]), size = 0.8 * length(rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_1_GSE,]))) # training data
+
+node_1_train[1:length(tmp),i] <- tmp
+
+used_ids <- tmp
+
+# testing data node 1
+set.seed(i); tmp <- rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_1_GSE,])[!rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_1_GSE,]) %in% used_ids]
+node_1_test[1:length(tmp),i] <- tmp
+
+used_ids <- c(used_ids, tmp)
+
+# node 2 train
+set.seed(i); tmp <- sample(x = rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_2_GSE,]), size = 0.8 * length(rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_2_GSE,]))) # training data
+node_2_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 2 test
+set.seed(i); tmp <- rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_2_GSE,])[!rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_2_GSE,]) %in% used_ids]
+node_2_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp  <- sample(x = rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_3_GSE,]), size = 0.8 * length(rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_3_GSE,]))) # training data
+node_3_train[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+
+# node 3 test
+set.seed(i); tmp  <- rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_3_GSE,])[!rownames(annotation.A1.ALL[annotation.A1.ALL$GSE %in% node_3_GSE,]) %in% used_ids]
+node_3_test[1:length(tmp),i] <- tmp
+used_ids <- c(used_ids, tmp)
+}
+
+
+colnames(node_1_train) <- paste0("perm_", 1:100)
+colnames(node_2_train) <- paste0("perm_", 1:100)
+colnames(node_3_train) <- paste0("perm_", 1:100)
+colnames(node_1_test) <- paste0("perm_", 1:100)
+colnames(node_2_test) <- paste0("perm_", 1:100)
+colnames(node_3_test) <- paste0("perm_", 1:100)
+
+dir <- "ED_Fig_6"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(node_1_test, file = paste0(dir, "/", "node_1_test.txt"), row.names = F, quote = F)
+write.table(node_2_test, file = paste0(dir, "/", "node_2_test.txt"), row.names = F, quote = F)
+write.table(node_3_test, file = paste0(dir, "/", "node_3_test.txt"), row.names = F, quote = F)
+# all three test sets were combined to one common test set ("node 4)
+
+```
+
+# ED Fig 7B
+
+```{r}
+permutations <- 50
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CASE",] ), size = 252, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CONTROL",] ), size = 252, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 252, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 252, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 252, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 252, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 189, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_2_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =189, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir <- "ED_Fig_7B"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir, "/", "test.txt"), row.names = F, quote = F)
+```
+
+# ED Fig 7C
+
+```{r}
+permutations <- 50
+for(i in 1:permutations){
+
+# node 1 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = 106, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = 106, replace = F))) 
+if(1 == i){
+  node_1_train <- tmp
+} else {
+  node_1_train <- cbind(node_1_train, tmp)
+}
+dim(node_1_train)
+
+used_ids <- tmp
+
+
+# node 2 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 106, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 106, replace = F))) 
+
+if(1 == i){
+  node_2_train <- tmp
+} else {
+  node_2_train <- cbind(node_2_train, tmp)
+}
+dim(node_2_train)
+used_ids <- c(used_ids, tmp)
+
+# node 3 train
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 106, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = 106, replace = F))) 
+
+if(1 == i){
+  node_3_train <- tmp
+} else {
+  node_3_train <- cbind(node_3_train, tmp)
+}
+
+used_ids <- c(used_ids, tmp)
+
+# test
+set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = 155, replace = F), 
+          c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size =155, replace = F))) 
+
+if(1 == i){
+  test <- tmp
+} else {
+  test <- cbind(test, tmp)
+}
+dim(test)
+used_ids <- c(used_ids, tmp)
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(test) <- paste0("perm_", 1:permutations)
+
+dir <- "ED_Fig_7C"
+dir.create(dir)
+write.table(node_1_train, file = paste0(dir, "/", "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "/", "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "/", "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(test, file = paste0(dir,"/", "test.txt"), row.names = F, quote = F)
+```
+
+
+# ED Fig. 8 
+
+test set A --> ED Fig. 8D
+test set B --> ED Fig. 8C
+test set c --> ED Fig. 8B
+
+```{r}
+scenario_name = "ED_Fig_8"
+n_n1_case = 240
+n_n1_control = 240
+n_n2_case = 30
+n_n2_control = 300
+n_n3_case = 60
+n_n3_control = 300
+
+n_testA_case = 30
+n_testA_control=  300
+n_testB_case = 100
+n_testB_control = 300
+n_testC_case = 200
+n_testC_control = 300
+
+n_test_case = sum(annotation.B$setting_1_labels == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.B$setting_1_labels == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testA
+  set.seed(i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_testA_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_testA_control, replace = F))) 
+  if(1 == i){
+    testA <- tmp
+  } else {
+    testA <- cbind(testA, tmp)
+  }
+  
+  # testB
+  set.seed(1000+i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_testB_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_testB_control, replace = F))) 
+  if(1 == i){
+    testB <- tmp
+  } else {
+    testB <- cbind(testB, tmp)
+  }
+
+  # testC
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CASE" & !rownames(annotation.B) %in% used_ids,]), size = n_testC_case, replace = F), 
+                        c(sample(rownames(annotation.B[annotation.B$setting_1_labels == "CONTROL" & !rownames(annotation.B) %in% used_ids,]), size = n_testC_control, replace = F))) 
+  if(1 == i){
+    testC <- tmp
+  } else {
+    testC <- cbind(testC, tmp)
+  }
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testA) <- paste0("perm_", 1:permutations)
+colnames(testB) <- paste0("perm_", 1:permutations)
+colnames(testC) <- paste0("perm_", 1:permutations)
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir, "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "node_3_train.txt"), row.names = F, quote = F)
+
+#write.table(test, file = paste0(dir, "test.txt"), row.names = F, quote = F)
+write.table(testA, file = paste0(dir, "test_A.txt"), row.names = F, quote = F)
+write.table(testB, file = paste0(dir, "test_B.txt"), row.names = F, quote = F)
+write.table(testC, file = paste0(dir, "test_C.txt"), row.names = F, quote = F)
+```
+
+
+# ED Fig. 9
+
+test set A --> ED Fig. 9D
+test set B --> ED Fig. 9C
+test set C --> ED Fig. 9B
+```{r}
+scenario_name = "ED_Fig_9"
+n_n1_case = 30
+n_n1_control = 30
+n_n2_case = 30
+n_n2_control = 30
+n_n3_case = 30
+n_n3_control = 30
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+
+n_testA_case = n_test_case
+n_testA_control=  1919
+n_testB_case = n_test_case
+n_testB_control = 100
+n_testC_case = n_test_case
+n_testC_control = 50
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testA
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testA_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testA_control, replace = F))) 
+  if(1 == i){
+    testA <- tmp
+  } else {
+    testA <- cbind(testA, tmp)
+  }
+  
+  # testB
+  set.seed(1000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testB_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testB_control, replace = F))) 
+  if(1 == i){
+    testB <- tmp
+  } else {
+    testB <- cbind(testB, tmp)
+  }
+
+  # testC
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_control, replace = F))) 
+  if(1 == i){
+    testC <- tmp
+  } else {
+    testC <- cbind(testC, tmp)
+  }
+
+
+  
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testA) <- paste0("perm_", 1:permutations)
+colnames(testB) <- paste0("perm_", 1:permutations)
+colnames(testC) <- paste0("perm_", 1:permutations)
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir,  "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir,  "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir,  "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(testA, file = paste0(dir, "test_A.txt"), row.names = F, quote = F)
+write.table(testB, file = paste0(dir, "test_B.txt"), row.names = F, quote = F)
+write.table(testC, file = paste0(dir, "test_C.txt"), row.names = F, quote = F)
+```
+
+# ED Fig. 10
+
+test set D --> ED Fig. 10c
+test set E --> ED Fig. 10b
+
+```{r}
+scenario_name = "ED_Fig_10BC"
+n_n1_case = 40
+n_n1_control = 60
+n_n2_case = 30
+n_n2_control = 70
+n_n3_case = 20
+n_n3_control = 80
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+n_testD_case = n_test_case
+n_testD_control = 100
+n_testE_case = n_test_case
+n_testE_control = 50
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testD
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_case, replace = F),
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_control, replace = F)))
+  if(1 == i){
+    testD <- tmp
+  } else {
+    testD <- cbind(testD, tmp)
+  }
+
+  # testE
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testE_case, replace = F),
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testE_control, replace = F)))
+  if(1 == i){
+    testE <- tmp
+  } else {
+    testE <- cbind(testE, tmp)
+  }
+  
+  
+  
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testD) <- paste0("perm_", 1:permutations)
+colnames(testE) <- paste0("perm_", 1:permutations)
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir, "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(testD, file = paste0(dir, "test_D.txt"), row.names = F, quote = F)
+write.table(testE, file = paste0(dir, "test_E.txt"), row.names = F, quote = F)
+
+```
+
+
+
+test set D --> ED Fig. 10F
+test set E --> ED Fig. 10E
+
+```{r}
+scenario_name = "ED_Fig_10FE"
+n_n1_case = 30
+n_n1_control = 70
+n_n2_case = 20
+n_n2_control = 80
+n_n3_case = 10
+n_n3_control = 90
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+
+n_testD_case = n_test_case
+n_testD_control = 150
+n_testE_case = n_test_case
+n_testE_control = 100
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testD
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_case, replace = F),
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_control, replace = F)))
+  if(1 == i){
+    testD <- tmp
+  } else {
+    testD <- cbind(testD, tmp)
+  }
+
+  # testE
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testE_case, replace = F),
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testE_control, replace = F)))
+  if(1 == i){
+    testE <- tmp
+  } else {
+    testE <- cbind(testE, tmp)
+  }
+
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(testD) <- paste0("perm_", 1:permutations)
+colnames(testE) <- paste0("perm_", 1:permutations)
+
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir,  "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir, "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "node_3_train.txt"), row.names = F, quote = F)
+
+write.table(testD, file = paste0(dir, "test_D.txt"), row.names = F, quote = F)
+write.table(testE, file = paste0(dir, "test_E.txt"), row.names = F, quote = F)
+
+```
+
+# ED Fig. 11 
+
+test set C --> Fig. 11d
+test set D --> Fig. 11b
+test set F --> Fig. 11c
+
+```{r}
+scenario_name = "ED_Fig_11"
+n_n1_case = 10
+n_n1_control = 90
+n_n2_case = 5
+n_n2_control = 95
+n_n3_case = 5
+n_n3_control = 95
+n_n4_case = 3
+n_n4_control = 97
+
+
+n_testC_case = 50
+n_testC_control = 500
+n_testD_case = 111
+n_testD_control = 100
+n_testF_case = 111
+n_testF_control = 500
+
+n_test_case = sum(annotation.C$Condition == "CASE") - (n_n1_case + n_n2_case + n_n3_case)
+n_test_control = sum(annotation.C$Condition == "CONTROL") - (n_n1_control + n_n2_control + n_n3_control)
+permutations = 50
+
+for(i in 1:permutations) {
+  
+  # node 1 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE",] ), size = n_n1_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL",] ), size = n_n1_control, replace = F))) 
+  if(1 == i){
+    node_1_train <- tmp
+  } else {
+    node_1_train <- cbind(node_1_train, tmp)
+  }
+  dim(node_1_train)
+  
+  used_ids <- tmp
+  
+  
+  # node 2 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n2_control, replace = F))) 
+  
+  if(1 == i){
+    node_2_train <- tmp
+  } else {
+    node_2_train <- cbind(node_2_train, tmp)
+  }
+  dim(node_2_train)
+  used_ids <- c(used_ids, tmp)
+  
+  # node 3 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n3_control, replace = F))) 
+  
+  if(1 == i){
+    node_3_train <- tmp
+  } else {
+    node_3_train <- cbind(node_3_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+  # node 4 train
+  set.seed(i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_n4_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_n4_control, replace = F))) 
+  
+  if(1 == i){
+    node_4_train <- tmp
+  } else {
+    node_4_train <- cbind(node_4_train, tmp)
+  }
+  
+  used_ids <- c(used_ids, tmp)
+  
+
+  # testC
+  set.seed(2000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testC_control, replace = F))) 
+  if(1 == i){
+    testC <- tmp
+  } else {
+    testC <- cbind(testC, tmp)
+  }
+
+
+  # testD
+  set.seed(3000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testD_control, replace = F))) 
+  if(1 == i){
+    testD <- tmp
+  } else {
+    testD <- cbind(testD, tmp)
+  }
+  
+
+  
+  # testF
+  set.seed(5000+i); tmp <- c(sample(rownames(annotation.C[annotation.C$Condition == "CASE" & !rownames(annotation.C) %in% used_ids,]), size = n_testF_case, replace = F), 
+                        c(sample(rownames(annotation.C[annotation.C$Condition == "CONTROL" & !rownames(annotation.C) %in% used_ids,]), size = n_testF_control, replace = F))) 
+  if(1 == i){
+    testF <- tmp
+  } else {
+    testF <- cbind(testF, tmp)
+  }  
+}
+
+colnames(node_1_train) <- paste0("perm_", 1:permutations)
+colnames(node_2_train) <- paste0("perm_", 1:permutations)
+colnames(node_3_train) <- paste0("perm_", 1:permutations)
+colnames(node_4_train) <- paste0("perm_", 1:permutations)
+colnames(testC) <- paste0("perm_", 1:permutations)
+colnames(testD) <- paste0("perm_", 1:permutations)
+colnames(testF) <- paste0("perm_", 1:permutations)
+
+dir.create(scenario_name)
+dir <- paste0(scenario_name, "/", scenario_name, "_")
+write.table(node_1_train, file = paste0(dir, "node_1_train.txt"), row.names = F, quote = F)
+write.table(node_2_train, file = paste0(dir,  "node_2_train.txt"), row.names = F, quote = F)
+write.table(node_3_train, file = paste0(dir, "node_3_train.txt"), row.names = F, quote = F)
+write.table(node_4_train, file = paste0(dir, "node_4_train.txt"), row.names = F, quote = F)
+
+write.table(testC, file = paste0(dir, "test_C.txt"), row.names = F, quote = F)
+write.table(testD, file = paste0(dir, "test_D.txt"), row.names = F, quote = F)
+write.table(testF, file = paste0(dir, "test_F.txt"), row.names = F, quote = F)
+
+```
+
+

@@ -1,0 +1,298 @@
+---
+title: "Statistics"
+author: "Stefanie Herresthal"
+date: "6/13/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(xlsx)
+library(dplyr)
+library(MKmisc)
+
+```
+```{r}
+lower_ci <- function(mean, se, n, conf_level = 0.95){
+  lower_ci <- mean - qt(1 - ((1 - conf_level) / 2), n - 1) * se
+}
+upper_ci <- function(mean, se, n, conf_level = 0.95){
+  upper_ci <- mean + qt(1 - ((1 - conf_level) / 2), n - 1) * se
+}
+
+```
+
+
+# Supp. Table 1: 
+Supplementary Table 1: Overview over all sample numbers and scenarios
+
+# Supp. Table 2: 
+Supplementary Table 2: Dataset annotations of Dataset A, B and C
+
+
+# Supp. Table 3:
+Supplementary Table 3: Prediction results for all scenarios and permutations 
+
+Map figures to data
+```{r}
+data <- read_excel("All.txt.combined - complete_Figures - v2.0.xlsx")
+data$figure <- "none"
+colnames(data) <- make.names(colnames(data))
+
+# remove unnecessary sw runs
+data$exp_node <- paste(data$Experiment, data$Node, sep = "_")
+data <- data[!data$exp_node %in% c("sw_node_4", "sw_node_5", "sw_node_6"), ]
+
+
+# AML ##############
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds2" & data$run.4 == "s4"] <- "Fig. 2b" # OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds2" & data$run.4 == "s2"] <- "Fig. 2c" # OK 
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.2 == "ds2" & data$run.3 == "s1a"] <- "Fig. 2d" # OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds2" & data$run.4 == "s3"] <- "Fig. 2e" # 3 are missing
+# remove permutations 38, 46, 48
+to_remove <- data$figure == "Fig. 2e" & data$Permutation.Name %in% c("perm_38", "perm_46", "perm_48")
+data <- data[!to_remove,]
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds123" & data$run.4 == "s5"] <- "Fig. 2f" # OK
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds1" & data$run.4 == "s4"] <- "ED Fig. 2b"# OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds3" & data$run.4 == "s4"] <- "ED Fig. 2c" # 1 is missing
+which(table(data$Permutation.Name[data$figure == "ED Fig. 2c"]) != 4)
+to_remove <- data$figure == "ED Fig. 2c" & data$Permutation.Name %in% c("perm_93")
+data <- data[!to_remove,]
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds1" & data$run.4 == "s2"] <- "ED Fig. 3c" # OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds3" & data$run.4 == "s2"] <- "ED Fig. 3d" # OK
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.2 == "ds1" & data$run.3 == "s1a"] <- "ED Fig. 4c" # OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.2 == "ds3" & data$run.3 == "s1a"] <- "ED Fig. 4d" # OK
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.2 == "ds2" & data$run.3 == "s1b"] <- "ED Fig. 4e" # OK
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds1" & data$run.4 == "s3"] <- "ED Fig. 5c"# 1 is missing
+which(table(data$Permutation.Name[data$figure == "ED Fig. 5c"]) != 4)
+to_remove <- data$figure == "ED Fig. 5c" & data$Permutation.Name %in% c("perm_52")
+data <- data[!to_remove,]
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds3" & data$run.4 == "s3"] <- "ED Fig. 5d" # 1 is missing
+
+which(table(data$Permutation.Name[data$figure == "ED Fig. 5d"]) != 4)
+to_remove <- data$figure == "ED Fig. 5d" & data$Permutation.Name %in% c("perm_30")
+data <- data[!to_remove,]
+
+
+data$figure[data$Experiment.Name == "DZNE AML" & data$run.3 == "ds123" & data$run.4 == "s5"] <- "Fig. 2f" # OK
+
+data$figure[data$Experiment.Name == "DZNE ALL"& data$run.3 == "ds1" & data$run.4 == "s1"] <- "ED Fig. 6" # OK
+
+# TB ############
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s2" ] <- "ED Fig. 7b" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s1b" ] <- "Fig. 3b" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s1c" ] <- "Fig. 3d" # OK 6 nodes
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 %in% c("s8i", "snew8i") ] <- "Fig. 3f" # OK 
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 %in% c("s8k", "snew8k") ] <- "Fig. 3h" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 %in% c("s8m", "snew8m") ] <- "Fig. 3j" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 %in% c("s8o", "snew8o") ] <- "Fig. 3l" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s1" ] <- "ED Fig. 7c" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s7a" ] <- "ED Fig. 8d" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s7b" ] <- "ED Fig. 8c" # OK
+data$figure[data$Experiment.Name == "DZNE TB"  & data$run.4 == "s7c" ] <- "ED Fig. 8b" # OK
+
+# COVID ############
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s4a" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4a\\dzne_covid_ds1_s4a\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4a\\dzne_covid_ds1_s4a\\swarm\\result\\")] <- "Fig. 4b" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s4c" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4c\\dzne_covid_ds1_s4c\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4c\\dzne_covid_ds1_s4c\\swarm\\result\\")] <- "Fig. 4c" 
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s4d" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4d\\dzne_covid_ds1_s4d\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s4d\\dzne_covid_ds1_s4d\\swarm\\result\\")] <- "Fig. 4d" 
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s7c" ] <- "ED Fig. 8b" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s7b" ] <- "ED Fig. 8c" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s7a" ] <- "ED Fig. 8d" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s1c" ] <- "ED Fig. 9b" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s1b" ] <- "ED Fig. 9c" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s1a" ] <- "ED Fig. 9d" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s2e" ] <- "ED Fig. 10b" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s2d" ] <- "ED Fig. 10c" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s3e" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s3e_sn\\dzne_covid_ds1_s3e_sn\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s3e_sw\\dzne_covid_ds1_s3e_sw\\result\\")] <- "ED Fig. 10e" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s3d" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s3d_sn\\dzne_covid_ds1_s3d_sn\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s3d_sw\\dzne_covid_ds1_s3d_sw\\result\\")] <- "ED Fig. 10f" # OK
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s5d" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5d\\dzne_covid_ds1_s5d\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5d\\dzne_covid_ds1_s5d\\swarm\\result\\")] <- "ED Fig. 11b" # OK
+
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s5f" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5f\\dzne_covid_ds1_s5f\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5f\\dzne_covid_ds1_s5f\\swarm\\result\\")] <- "ED Fig. 11c" # 1 is missing
+which(table(data$Permutation.Name[data$figure == "ED Fig. 11c"]) != 5)
+to_remove <- data$figure == "ED Fig. 11c" & data$Permutation.Name %in% c("perm_11")
+data <- data[!to_remove,]
+
+
+data$figure[data$Experiment.Name == "DZNE COVID" & data$run.4 == "s5c" & data$Folder.Path %in% c("C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5c\\dzne_covid_ds1_s5c\\single-node\\result\\", "C:\\Temp\\SwarmTMP\\_ResultsSources\\dzne_covid_ds1_s5c\\dzne_covid_ds1_s5c\\swarm\\result\\")] <- "ED Fig. 11d" 
+```
+```{r}
+data <- data[data$figure != "none",]
+```
+
+
+## add AUC values
+```{r}
+data$AUC <- NA
+data$Folder.Path.2 <- gsub(replacement = "/", pattern = "\\\\", x = data$Folder.Path)
+for(i in 1:nrow(data)){
+   if(data$Experiment.Name[i] %in% c("DZNE TB", "DZNE COVID")){
+     FILE <- paste0(gsub(pattern = "C:/Temp/SwarmTMP", replacement = "../SwarmResult", x =  data$Folder.Path.2[i]), "/", data$Source.Name.BaseFile[i])
+     FILE <- sub(pattern = "result.txt", replacement = "act_vs_pred.csv", x = FILE)
+     if(file.exists(FILE)){
+       tmp <-  read.delim(FILE, sep = ",", stringsAsFactors = F)
+       if(dim(tmp)[2] == 4){
+       tmp$Actuals <- factor(tmp$Actuals, levels = c("CONTROL", "CASE"))
+       
+       pred_ROCR <- prediction(1-tmp$Predictions_Score_0_To_1, tmp$Actuals)
+       roc_ROCR <- performance(pred_ROCR, measure = "tpr", x.measure = "fpr")
+       auc_ROCR <- performance(pred_ROCR, measure = "auc")
+       auc_ROCR <- auc_ROCR@y.values[[1]]
+       data$AUC[i] <- auc_ROCR
+       }
+      }
+    }
+  }
+
+```
+ 
+
+
+
+```{r}
+supp_table_3 <- data[data$figure != "none",]
+#supp_table_3$node <- paste(data$run.5, data$)
+supp_table_3 <- supp_table_3[,c("figure", "Node","Experiment", "tp", "tn", "fp", "fn", "Permutation.Name", "F1.0", "Specificity", "Sensitivity", "Test.accuracy", "AUC")]
+
+names(supp_table_3) <- c("figure", "node", "swarm", "tp", "tn","fp","fn", "Permutation", "F1", "Specificity", "Sensitivity", "Accuracy", "AUC")   
+```
+`
+
+
+# Supp. Table 4:
+
+Supplementary Table 4: Summary statistics on all prediction scenarios
+
+prevalence, PPV and NPV
+```{r}
+data$prevalence <- data$TEST.CASE / (data$TEST.CASE + data$TEST.CONTROL)
+data$PPV <- NA
+data$NPV <- NA
+for(i in 1:nrow(data)){
+  if(!is.na(data$Sensitivity[i]) & !is.na(data$Specificity[i])){
+  data$PPV[i] <- predValues(sens = data$Sensitivity[i], spec = data$Specificity[i], prev = data$prevalence[i])[1]
+  data$NPV[i] <- predValues(sens = data$Sensitivity[i], spec = data$Specificity[i], prev = data$prevalence[i])[2]
+  }
+}
+```
+
+```{r}
+data$balanced_acc <- (data$Specificity + data$Sensitivity) / 2
+tmp <- data %>% group_by(figure, Node, Experiment) %>% 
+  summarise(count = n(), 
+            # sensitivity
+            mean_sens = mean(Sensitivity, na.rm = TRUE),
+            sd_sens = sd(Sensitivity, na.rm = TRUE), 
+            # specificity
+            mean_spec = mean(Specificity, na.rm = TRUE),
+            sd_spec = sd(Specificity, na.rm = TRUE),
+            # accuracy
+            mean_bal_acc = mean(balanced_acc, na.rm = TRUE), 
+            sd_bal_acc = sd(balanced_acc, na.rm = TRUE),
+            # balanced accuracy
+            mean_acc = mean(Test.accuracy, na.rm = TRUE), 
+            sd_acc = sd(Test.accuracy, na.rm = TRUE), 
+            # PPV
+            mean_ppv = mean(PPV, na.rm = TRUE), 
+            sd_ppv = sd(PPV, na.rm = TRUE), 
+            # NPV
+            mean_npv = mean(NPV, na.rm = TRUE), 
+            sd_npv = sd(NPV, na.rm = TRUE),
+            # f1 
+            mean_F1 = mean(F1.0, na.rm = TRUE),
+            # AUC
+            mean_auc = mean(AUC, na.rm = TRUE),
+            sd_auc = sd(AUC, na.rm = TRUE)
+            
+           )
+#tmp <- na.omit(tmp)
+tmp <- tmp %>%   mutate(
+  
+  # sensitivity
+  se_sens = sd_sens / sqrt(count),
+  lower_ci_sens = lower_ci(mean_sens, se_sens, count),
+  upper_ci_sens = upper_ci(mean_sens, se_sens, count), 
+  # specificity
+  se_spec = sd_spec / sqrt(count),
+  lower_ci_spec = lower_ci(mean_sens, se_spec, count),
+  upper_ci_spec = upper_ci(mean_sens, se_spec, count), 
+  # accuracy
+  se_acc = sd_acc /sqrt(count),
+  lower_ci_acc = lower_ci(mean_acc, se_acc, count),
+  upper_ci_acc = upper_ci(mean_acc, se_acc, count), 
+  # balanced accuracy
+  se_bal_acc = sd_bal_acc /sqrt(count),
+  lower_ci_bal_acc = lower_ci(mean_sens, se_bal_acc, count),
+  upper_ci_bal_acc = upper_ci(mean_sens, se_bal_acc, count), 
+  # PPV
+  se_ppv = sd_ppv /sqrt(count),
+  lower_ci_ppv = lower_ci(mean_ppv, se_ppv, count),
+  upper_ci_ppv = upper_ci(mean_ppv, se_ppv, count), 
+  # NPV
+  se_npv = sd_npv /sqrt(count),
+  lower_ci_npv = lower_ci(mean_npv, se_npv, count),
+  upper_ci_npv = upper_ci(mean_npv, se_npv, count),
+  # AUC
+  se_auc = sd_auc / sqrt(count),
+  lower_ci_auc = lower_ci(mean_auc, se_auc, count), 
+  upper_ci_auc = upper_ci(mean_auc, se_auc, count)
+)
+
+
+tmp <- tmp[,c(names(tmp)[1:6], c("count", "mean_acc","mean_bal_acc",	"mean_sens",	"mean_spec",	"mean_ppv","mean_npv", "mean_F1", "mean_auc", "lower_ci_auc", "upper_ci_auc"))]
+tmp <- tmp[tmp$figure != "none",]
+tmp$Weight.of.Nodes <- NULL
+
+supp_table_4 <- tmp
+
+supp_table_4$Node[supp_table_4$Experiment == "sw"] <- "swarm"
+supp_table_4$Experiment <- NULL
+```
+
+
+# Suppl Table 5: 
+
+tests of AUC, balanced accuracy, sensitivity and specificity nodes against swarm
+For each figure, give p-value for swarm vs. single node
+
+
+```{r}
+supp_table_5 <- data.frame()
+supp_table_5_2 <- data.frame()
+data <- as.data.frame(data)
+data <- data[data$figure != "none",]
+for(i in unique(data$figure)){
+  tmp1 <- data[data$figure == i,]
+  for(j in unique(tmp1$Node)){
+    for(k in c("AUC", "Test.accuracy", "balanced_acc", "F1.0", "Specificity", "Sensitivity")){
+      df_1 <- as.numeric(tmp1[tmp1$Node == j & tmp1$Experiment == "sn",k])
+      df_2 <- as.numeric(tmp1[tmp1$Experiment == "sw", k])
+      if(sum(is.na(df_1)) == 0 & sum(is.na(df_2)) == 0){
+      pval <- wilcox.test(df_1, df_2, paired = T, exact = FALSE)$p.value
+      method <- wilcox.test(df_1, df_2, paired = T, exact = FALSE)$method
+      n <- length(df_1)
+      figure <- i
+      node_vs_swarm <- j
+      measure <- k
+      mean_node <- mean(df_1)
+      mean_swarm <- mean(df_2)
+      res <- data.frame(figure, node_vs_swarm, n, pval, measure, mean_node, mean_swarm, method)
+      supp_table_5 <- rbind(supp_table_5, res)
+      }
+    }
+  }
+}
+
+```
+
+
