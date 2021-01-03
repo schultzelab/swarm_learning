@@ -1,0 +1,186 @@
+from collections import namedtuple
+
+filepattern = "/input/{run}/{sample}_S{sid}_L{lane}_R{read}_{num}.fastq.gz"
+
+def get_file_data():
+    return glob_wildcards(filepattern)
+
+
+def data_to_dict(file_data):
+    """converts a tuple of lists `(runs, samples, sids, lanes, reads,
+nums)` into a list of named tuples so that you can iterate over the
+tuples of the form `(run="run_1", sample="4414", sid="1", lane="002",
+read="1")`.
+    """
+    Datum = namedtuple(
+        "Datum",
+        ["run", "sample", "sid", "lane", "read", "num"])
+    data = []
+    for datum in zip(*file_data):
+        data.append(Datum(*datum))
+    return data
+
+
+def get_sample_files_r1(wildcards):
+    sample = wildcards.sample
+    allfiles = []
+    for datum in data_to_dict(get_file_data()):
+        if datum.sample == sample:
+            args = datum._asdict()
+            r1 = filepattern.format(**{**args, "read": "1"})
+            allfiles.append(str(r1))
+    allfiles = list(set(allfiles))
+    allfiles.sort()
+    return allfiles
+
+def get_sample_files_r2(wildcards):
+    if mode == "single":
+        return []
+    sample = wildcards.sample
+    allfiles = []
+    for datum in data_to_dict(get_file_data()):
+        if datum.sample == sample:
+            args = datum._asdict()
+            r2 = filepattern.format(**{**args, "read": "2"})
+            allfiles.append(str(r2))
+    allfiles = list(set(allfiles))
+    allfiles.sort()
+    return allfiles
+
+
+def get_samples():
+    _, samples, _, _, _, _ = get_file_data()
+    return list(set(samples))
+
+
+def mode_auto():
+    _, _, _, _, reads, _ = get_file_data()
+
+    if set(reads) == set(["1","2"]):
+        return "paired"
+    elif set(reads) == set(["1"]):
+        return "single"
+    else:
+        raise Exception("Wrong read id")
+
+samples = get_samples()
+mode = mode_auto()
+
+rule all:
+    input:
+        "/output/qc-star/multiqc-aligned.html",
+        "/output/qc-fastqc/multiqc-aligned.html",
+        expand("/output/{samples}/{samples}.ReadsPerGene.out.tab", samples=get_samples()),
+        expand("/output/{samples}/{samples}.bam", samples=get_samples()),
+        expand("/output/{samples}/{samples}.bam.bai", samples=get_samples())
+#    shell:
+#        "chmod -R a+w /output &&"
+#        "chown -R nobody /output"
+
+rule fastqc:
+    input:
+        "/tmp/{sample}_{read}.fastq.gz"
+    output:
+        html="/output/{sample}/{sample}_{read}.html",
+        zip="/output/{sample}/{sample}_{read}_fastqc.zip"
+    params: ""
+    log:
+        "logs/fastqc/{sample}_{read}.log"
+    wrapper:
+        "0.51.2/bio/fastqc"
+rule qc_fastqc:
+    input:
+        expand("/output/{samples}/{samples}_{reads}_fastqc.zip", samples=get_samples(),reads=["1","2"])
+    output:
+        "/output/qc-fastqc/multiqc-aligned.html"
+    params:
+        ""  # Optional: extra parameters for multiqc.
+    log:
+        "/output/qc-fastqc/multiqc-aligned.log"
+    wrapper:
+        "0.44.2/bio/multiqc"
+
+rule qc:
+    input:
+        expand("/output/{samples}/{samples}.ReadsPerGene.out.tab", samples=get_samples())
+    output:
+        "/output/qc-star/multiqc-aligned.html"
+    params:
+        ""  # Optional: extra parameters for multiqc.
+    log:
+        "/output/qc-star/multiqc-aligned.log"
+    wrapper:
+        "0.44.2/bio/multiqc"
+        
+rule merge:
+    input:
+        fq1=get_sample_files_r1,
+        fq2=get_sample_files_r2
+    output:
+        temp("/tmp/{sample}_1.fastq.gz"),
+        temp("/tmp/{sample}_2.fastq.gz")
+    threads: 12
+    run:
+        if len(input.fq1) == 1:
+            shell("cp {input.fq1} {output[0]}")
+            shell("cp {input.fq2} {output[1]}")
+        else:
+            shell("cat {input.fq1} > {output[0]}")
+            shell("cat {input.fq2} > {output[1]}")
+
+rule star:
+    input:
+        fq1="/tmp/{sample}_1.fastq.gz",
+        fq2="/tmp/{sample}_2.fastq.gz"
+    output:
+    # see STAR manual for additional output files
+        temp("/tmp/{sample}/Aligned.sortedByCoord.out.bam"),
+        temp("/tmp/{sample}/ReadsPerGene.out.tab")
+    log:
+        "/output/{sample}/{sample}_star.log"
+    params:
+        # path to STAR reference genome index
+        index="/index",
+        # optional parameters
+        extra="--outSAMtype BAM SortedByCoordinate --bamRemoveDuplicatesType UniqueIdentical --quantMode GeneCounts --sjdbGTFfile /annotation.gtf"
+
+    threads: 12
+    wrapper:
+        "0.44.2/bio/star/align"
+rule rename_bam:
+    input:  "/tmp/{samples}/Aligned.sortedByCoord.out.bam"
+    output: temp("/tmp/{samples}/{samples}.bam")
+    shell:
+        "mv {input} {output}"
+
+rule rename_counts:
+    input:  "/tmp/{samples}/ReadsPerGene.out.tab"
+    output: temp("/tmp/{samples}/{samples}.ReadsPerGene.out.tab")
+    shell:
+         "mv {input} {output}"
+
+rule samtools_index:
+    input:  "/tmp/{samples}/{samples}.bam"
+    output: temp("/tmp/{samples}/{samples}.bam.bai")
+    log:
+        "/output/{samples}/{samples}_samtools_index.log"
+    params:
+        "" # optional params string
+    wrapper:
+        "0.44.2/bio/samtools/index"
+
+rule move_results:
+    input:
+        "/tmp/{samples}/{samples}.bam",
+        "/tmp/{samples}/{samples}.bam.bai",
+        "/tmp/{samples}/{samples}.ReadsPerGene.out.tab"
+    output:
+        "/output/{samples}/{samples}.bam",
+        "/output/{samples}/{samples}.bam.bai",
+        "/output/{samples}/{samples}.ReadsPerGene.out.tab"
+    threads: 12
+    run:
+        shell("mv {input[0]} {output[0]}")
+        shell("mv {input[1]} {output[1]}")
+        shell("mv {input[2]} {output[2]}")
+

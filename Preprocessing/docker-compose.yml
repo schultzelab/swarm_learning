@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  sl-preprocessing:
+    image: sl-preprocessing:1.0
+    environment:
+        - JOBS=30
+    volumes:
+      - ./Snakefile:/Snakefile:ro
+      - ./fastq/:/input/run1:ro
+      - ./output/:/output:rw
+      - ./index/star-indexfiles:/index:ro
+      - ./reference/annotation.gtf:/annotation.gtf:ro
+      - /tmp:/tmp:rw
+
