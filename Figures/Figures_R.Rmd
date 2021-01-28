@@ -1,0 +1,200 @@
+---
+title: "Figures_R"
+author: "Stefanie Herresthal"
+date: "1/28/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(ggplot2)
+library(tidyr)
+```
+
+This script contains the figures generated with R for the manuscript by Warnat-Herresthal et al 2020
+
+```{r}
+results <- read.delim("prediction_results.txt")
+```
+
+
+## Figure 3mn 
+```{r}
+ggplot(results[results$figure == "Fig_3N",], aes(x = Node, y = AUC)) + 
+  geom_boxplot(width = 0.5) + 
+  geom_point(size = 2) + 
+  ylim(c(0,1)) + 
+  theme_bw() + 
+  facet_grid(~other_spec) + 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1) )
+
+```
+
+
+# Figure 4e,f
+
+```{r}
+# prepare plot
+tmp <- results[results$figure == "Fig_4F",]
+tmp <- pivot_longer(tmp, cols = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "F1.score"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "F1.score"))
+ggplot(tmp, aes(x = Node, y = value)) + 
+  geom_boxplot() + 
+  geom_point(aes(colour = Node), size = 1) +
+  facet_grid(cols = vars(measure)) + 
+  xlab("node") + 
+  theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+## ED Fig 2h
+```{r}
+ggplot(results[results$figure == "ED_Fig_2H",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+  theme_bw()
+
+
+# significance
+wilcox.test(results$Accuracy[results$figure == "ED_Fig_2H" & results$Node == "swarm"],
+                    results$Accuracy[results$figure == "ED_Fig_2H" & results$Node == "central"], paired = T, exact = FALSE)$p.value
+```
+## ED Fig 3C
+
+```{r}
+ggplot(results[results$figure == "ED_Fig_3C",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+  theme_bw()
+
+# significance
+wilcox.test(results$Accuracy[results$figure == "ED_Fig_3C" & results$Node == "swarm"],
+                    results$Accuracy[results$figure == "ED_Fig_3C" & results$Node == "central"], paired = T, exact = FALSE)$p.value
+
+```
+
+## ED FIg 3D
+```{r}
+ggplot(results[results$figure == "ED_Fig_3D",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+ theme_bw()
+
+```
+## ED Fig 4C
+
+```{r}
+ggplot(results[results$figure == "ED_Fig_4C",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+ theme_bw()
+
+wilcox.test(results$Accuracy[results$figure == "ED_Fig_4C" & results$Node == "swarm"],
+                    results$Accuracy[results$figure == "ED_Fig_4C" & results$Node == "central"], paired = T, exact = FALSE)$p.value
+
+```
+
+## ED Fig 4H
+
+```{r}
+ggplot(results[results$figure == "ED_Fig_4H",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+ theme_bw()
+
+wilcox.test(results$Accuracy[results$figure == "ED_Fig_4H" & results$Node == "swarm"][1:98],
+                    results$Accuracy[results$figure == "ED_Fig_4H" & results$Node == "central"], paired = T, exact = FALSE, alternative = "less")$p.value
+
+```
+## ED Fig 4J
+
+```{r}
+tmp <- results[results$figure == "ED_Fig_4J",]
+tmp <- pivot_longer(tmp, cols = c("AUC",  "Accuracy", "Sensitivity", "Specificity"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("Accuracy", "Sensitivity", "Specificity", "AUC"))
+
+
+ggplot(tmp, aes(x = Node, y = value)) + 
+  geom_boxplot() + 
+  ylim(0.5, 1) +
+  facet_grid(cols = vars(measure)) + 
+ theme_bw()
+```
+
+## ED Fig 5g
+
+```{r}
+ ggplot(results[results$figure == "ED_Fig_5G",], aes(x = Node, y = Accuracy)) + 
+  geom_boxplot() + 
+  geom_point(size = 1) +
+  facet_grid(cols = vars(other_spec)) + 
+  xlab("node") + 
+  theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## ED Fig 5k
+
+```{r}
+tmp <- results[results$figure %in% c("Fig_4B_central", "Fig_4C_central",  "Fig_4D_central"),]
+tmp <- pivot_longer(tmp, cols = c("Accuracy", "Sensitivity", "Specificity", "F1.score"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("Accuracy", "Sensitivity", "Specificity", "F1.score"))
+
+ggplot(tmp, aes(x = measure, y = value)) + 
+ geom_boxplot() + 
+  facet_grid(cols = vars(figure)) + 
+ theme_bw() + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+## ED FIg 9f
+
+```{r}
+tmp <- pivot_longer(results[results$figure == "ED_Fig_9F",], cols = c("Accuracy", "Sensitivity", "Specificity", "F1.score"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("Accuracy", "Sensitivity", "Specificity", "F1.score"))
+
+
+ggplot(results[results$figure == "ED_Fig_9F",], aes(x = Node, y = AUC)) + 
+ geom_boxplot() + 
+  facet_grid(rows = vars(other_spec)) + 
+ theme_bw() + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+## ED Fig 9g
+
+```{r}
+tmp <- pivot_longer(results[results$figure == "ED_Fig_9G",], cols = c("AUC", "Accuracy", "Sensitivity", "Specificity", "F1.score"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("AUC", "Accuracy", "Sensitivity", "Specificity", "F1.score"))
+
+# 
+ggplot(tmp, aes(x = Node, y = value)) + 
+ geom_boxplot() + 
+  facet_grid(cols = vars(measure)) + 
+ theme_bw() + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+tmp <- pivot_longer(results[results$figure == "ED_Fig_9I",], cols = c("AUC", "Accuracy", "Sensitivity", "Specificity"), names_to = "measure", values_to = "value")
+tmp$measure <- factor(tmp$measure, levels = c("AUC", "Accuracy", "Sensitivity", "Specificity", "F1.score"))
+
+tmp$other_spec[tmp$Node == "node_1"] <- "E1"
+tmp$other_spec[tmp$Node == "node_2"] <- "E3"
+tmp$other_spec[tmp$Node == "node_3"] <- "E2"
+tmp$other_spec[tmp$Node == "swarm"] <- "swarm"
+
+
+ggplot(tmp, aes(x = other_spec, y = value)) + 
+ geom_point() + 
+  facet_grid(cols = vars(measure)) + 
+ theme_bw() + 
+  ylim(0.5, 1) + 
+ theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
