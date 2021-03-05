@@ -1,6 +1,7 @@
 ---
-title: "Supplementary Tables"
+title: "Statistics"
 author: "Stefanie Herresthal"
+date: "6/13/2020"
 output: html_document
 ---
 
@@ -26,98 +27,22 @@ upper_ci <- function(mean, se, n, conf_level = 0.95){
 
 ```
 
-# Supplementary Table 3:
-```{r}
-supp_table_3 <- read.delim("prediction_results.txt", sep = "\t")
 
-```
 
-For reading in the individual prediction results, this function was used: 
+# Supp. Table 3:
 
 ```{r}
-get_pred <- function(folder, 
-                     figure,
-                     perms = 1:100,
-                     nodes =  c("node_1", "node_2", "node_3"), 
-                     swarm = F, 
-                     central = F,
-                     test_subsets = NULL, 
-                     AUC = TRUE, 
-                     description = "standard"){
-  
-files <- list.files(folder, full.names = T, recursive = F)
-files <- files[grep(x = files, pattern = "act_vs_pred")]
-permutations <- paste("p", perms, "_", sep = "")
-
-result <- data.frame(perm = "0", 
-                     node = "0", 
-                     figure = "0", 
-                     other_spec = description,
-                     P = 0, 
-                     N = 0, 
-                     TP = 0, 
-                     TN = 0, 
-                     FP = 0, 
-                     FN = 0, 
-                     AUC = 0) 
-
-for(i in permutations){
-  tmp_files <- files[grep(x = files, pattern = i)]
-  for(n in nodes){
-    file_to_read <-  tmp_files[grep(x = tmp_files, pattern = n)]
-    if(length(file_to_read) == 1){
-    
-    # define data
-    tmp_data <- read.delim(tmp_files[grep(x = tmp_files, pattern = n)], sep = ",")
-    tmp_data$Actuals <- factor(tmp_data$Actuals, levels = c("CONTROL", "CASE"))
-    
-    # calculate AUC 
-    if(AUC == T){
-    pred_ROCR <- prediction(tmp_data$Predictions_Score_0_To_1, tmp_data$Actual, label.ordering = c("CONTROL", "CASE"))
-    auc_ROCR <- performance(pred_ROCR, measure = "auc")
-    auc_ROCR <- auc_ROCR@y.values[[1]]
-    } else {
-      auc_ROCR <- NA
-    }
-    # swarm result yes/no?
-    if(swarm == T){
-      node_to_print <- "swarm"
-    } else if (central == T) {
-      node_to_print <- "central"
-    } else {
-      node_to_print <- n
-    }
-    
-    # combine results
-    result_tmp <- data.frame(perm = i, 
-                             node = node_to_print, 
-                             figure = figure,
-                             other_spec = description,
-                             P = sum(tmp_data$Actuals == "CASE"), 
-                             N = sum(tmp_data$Actuals == "CONTROL"), 
-                             TP = sum(tmp_data$Actuals == "CASE" & tmp_data$Predictions == "CASE"), 
-                             TN = sum(tmp_data$Actuals == "CONTROL" & tmp_data$Predictions == "CONTROL"), 
-                             FP = sum(tmp_data$Actuals == "CONTROL" & tmp_data$Predictions == "CASE"), 
-                             FN = sum(tmp_data$Actuals == "CASE" & tmp_data$Predictions == "CONTROL"), 
-                             AUC = auc_ROCR)
-    result <- rbind(result, result_tmp)
-    }
-   }
-}
-result <- result[result$perm != "0",]
-return(result)
-}
-                     
+supp_table_3 <- read_xlsx("../Figures/All.txt.combined - complete_Figures - v2.1.xlsx")
 ```
 
+# Supp. Table 4:
 
-
-# Supplementary Table 4: Summary statistics on all prediction scenarios
+Supplementary Table 4: Summary statistics on all prediction scenarios
 
 prevalence, PPV and NPV
 ```{r}
 data <- supp_table_3
-data$prevalence <- data$TEST.CASE / (data$TEST.CASE + data$TEST.CONTROL)
+data$prevalence <- data$P / (data$P + data$N)
 data$PPV <- NA
 data$NPV <- NA
 for(i in 1:nrow(data)){
@@ -129,7 +54,7 @@ for(i in 1:nrow(data)){
 ```
 
 ```{r}
-tmp <- data %>% group_by(figure, Node, other_spec) %>% 
+tmp <- data %>% group_by(figure, node, other_spec) %>% 
   summarise(count = n(), 
             # sensitivity
             mean_sens = mean(Sensitivity, na.rm = TRUE),
@@ -147,79 +72,62 @@ tmp <- data %>% group_by(figure, Node, other_spec) %>%
             mean_npv = mean(NPV, na.rm = TRUE), 
             sd_npv = sd(NPV, na.rm = TRUE),
             # f1 
-            mean_F1 = mean(F1.score, na.rm = TRUE),
-            sd_F1 = sd(F1.score, na.rm = TRUE),
-            # AUC
-            mean_auc = mean(AUC, na.rm = TRUE),
-            sd_auc = sd(AUC, na.rm = TRUE)
-            
-           )
-
-
-
-supp_table_4 <- tmp
-
-#tmp <- na.omit(tmp)
-tmp <- tmp %>%   mutate(
-
-  # sensitivity
-  se_auc = sd_auc / sqrt(count),
-  lower_ci_auc = lower_ci(mean_auc, se_auc, count),
-  upper_ci_auc = upper_ci(mean_auc, se_auc, count)
-)
-
-
-tmp <- tmp[,c(names(tmp)[1:2], c("other_spec", "count", "mean_acc",	"mean_sens",	"mean_spec",	"mean_ppv","mean_npv", "mean_F1", "mean_auc", "lower_ci_auc", "upper_ci_auc"))]
-tmp <- tmp[tmp$figure != "none",]
-
-supp_table_4 <- tmp
-
+            mean_F1 = mean(Fscore, na.rm = TRUE),
+            sd_F1 = sd(Fscore, na.rm = TRUE),
+             )
+write.table(tmp, file = "Suppl_Table_4.txt", sep = "\t")
 
 ```
 
 
-# Supplementary Table 5 
+# Suppl Table 5: 
 
-Wilcoxon test nodes vs. swarm
-
+Wilcoxon test
 ```{r}
 nodes <- ""
 
 res_fin <- data.frame()
 res_fin_2 <- data.frame()
-data <- as.data.frame(data)
+data <- as.data.frame(supp_table_3)
 data <- data[data$figure != "none",]
 
 figures_to_include <- unique(data$figure)
-figures_to_include <- figures_to_include[!figures_to_include %in% c("ED_Fig_3D", "Fig_4B_central", "Fig_4C_central", "Fig_4D_central", "ED_Fig_4H")]
+#figures_to_include <- figures_to_include[!figures_to_include %in% c("ED_Fig_3D", "Fig_4B_central", "Fig_4C_central", "Fig_4D_central", "ED_Fig_4H")]
 
 for(i in figures_to_include){
   tmp1 <- data[data$figure == i,]
-  nodes <- unique(tmp1$Node)
+  nodes <- unique(tmp1$node)
   nodes <- nodes[nodes != "swarm"]
   for(j in nodes){
     for(s in unique(tmp1$other_spec)){
-    for(k in c("AUC", "Accuracy", "F1.1", "Specificity", "Sensitivity")){
+    for(k in c("AUC", "Accuracy", "Fscore", "Specificity", "Sensitivity")){
       # take only permutations that are present in both sets
-      if(i %in% c("ED_Fig_7B", "ED_Fig_7C", "Fig_3N")){
-      intersect_perm <- intersect(tmp1[tmp1$Node == j & tmp1$other_spec == s,"Permutation.Name"],tmp1[tmp1$Node == "swarm" & tmp1$other_spec == s,"Permutation.Name"])
-      df_1 <- as.numeric(tmp1[tmp1$Node == j & tmp1$Permutation.Name %in% intersect_perm & tmp1$other_spec == s,k])
-      df_2 <- as.numeric(tmp1[tmp1$Node == "swarm"  & tmp1$Permutation.Name %in% intersect_perm & tmp1$other_spec == s, k])
-      } else {
-        df_1 <- as.numeric(tmp1[tmp1$Node == j & tmp1$other_spec == s,k])
-      df_2 <- as.numeric(tmp1[tmp1$Node == "swarm" &  tmp1$other_spec == s, k])
-      }
+      #if(i %in% c("ED_Fig_2e", "ED_Fig_7B", "ED_Fig_7C", "Fig_3N")){
+      # intersecting permutations
+      intersect_perm <- intersect(tmp1[tmp1$node == j & tmp1$other_spec == s,"perm"],tmp1[tmp1$node == "swarm" & tmp1$other_spec == s,"perm"])
+      df_2 <- as.numeric(tmp1[tmp1$node == j & tmp1$perm %in% intersect_perm & tmp1$other_spec == s,k])
+      df_1 <- as.numeric(tmp1[tmp1$node == "swarm"  & tmp1$perm %in% intersect_perm & tmp1$other_spec == s, k])
+      
+      #} else {
+      #  df_1 <- as.numeric(tmp1[tmp1$node == "swarm" &  tmp1$other_spec == s, k])
+      #df_2 <- as.numeric(tmp1[tmp1$node == j & tmp1$other_spec == s,k])
+      #}
       if(sum(is.na(df_1)) == 0 & sum(is.na(df_2)) == 0 ){
         if(length(df_1) != 0 | length(df_2) != 0){
-      pval <- wilcox.test(df_1, df_2, paired = T, exact = FALSE, alternative = "less")$p.value
-      method <- wilcox.test(df_1, df_2, paired = T, exact = FALSE, alternative = "less")$method
+      pval <- wilcox.test(df_1, df_2, paired = T, exact = FALSE, alternative = "g")$p.value
+      if(j == "central"){
+      pval <- wilcox.test(df_2, df_1, paired = T, exact = FALSE, alternative = "g")$p.value
+        
+      }
+      
+      method <- wilcox.test(df_1, df_2, paired = T, exact = FALSE, alternative = "g")$method
       n <- length(df_1)
       figure <- i
       node_vs_swarm <- j
       other_spec <- s
       measure <- k
-      mean_node <- mean(df_1)
-      mean_swarm <- mean(df_2)
+      mean_node <- mean(df_2)
+      mean_swarm <- mean(df_1)
       res <- data.frame(figure, node_vs_swarm, n, pval, measure, mean_node, mean_swarm, method, other_spec)
       res_fin <- rbind(res_fin, res)
         }
@@ -229,8 +137,8 @@ for(i in figures_to_include){
   }
 }
 
+write.xlsx(res_fin, file = "Supplementary_Table_5.xlsx",  col.names = TRUE, row.names = FALSE, append = FALSE)
 ```
-
 
 
 
