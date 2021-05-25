@@ -16,10 +16,10 @@ library(readxl)
 result <- readxl::read_excel("All.txt.combined - complete_Figures - v2.1.xlsx")
 library(tidyr)
 ```
-## Fig 3N
+## Fig 3d
 
 ```{r}
-ggplot(result[result$figure == "Fig_3n",], aes(x = node, y = AUC)) + 
+ggplot(result[result$figure == "Fig_3d",], aes(x = node, y = AUC)) + 
   geom_boxplot(width = 0.5) + 
   geom_point(size = 2) + 
   ylim(c(0,1)) + 
@@ -30,13 +30,10 @@ ggplot(result[result$figure == "Fig_3n",], aes(x = node, y = AUC)) +
 ```
 
 
-## Fig 4F
-
-
-
+## Fig 4d
 
 ```{r}
-tmp <- result[result$figure == "Fig_4f",]
+tmp <- result[result$figure == "Fig_4c",]
 tmp <- pivot_longer(tmp, cols = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "Fscore"), names_to = "measure", values_to = "value")
 tmp$measure <- factor(tmp$measure, levels = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "Fscore"))
 p <- ggplot(tmp, aes(x = node, y = value)) + 
@@ -50,26 +47,13 @@ p
 ```
 
 ## ED Fig 9f
-
-```{r, fig.height = 8, fig.width = 5}
-ggplot(result[result$figure == "ED_Fig_9f",], aes(x = node, y = AUC)) + 
-  geom_boxplot() + 
-  geom_point(aes(colour = node), size = 2) +
-  facet_grid(rows = vars(other_spec)) + 
-  xlab("node") + 
-  theme_bw() + 
-  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
-
-```
-
-## ED FIg 9g
 ```{r, fig.width = 5, fig.height = 7}
-tmp <- result[result$figure == "ED_Fig_9g",]
+tmp <- result[result$figure == "ED_Fig_9f",]
 tmp <- pivot_longer(tmp, cols = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "Fscore"), names_to = "measure", values_to = "value")
 tmp$measure <- factor(tmp$measure, levels = c("AUC",  "Accuracy", "Sensitivity", "Specificity", "Fscore"))
 
 
-ggplot(tmp[tmp$figure == "ED_Fig_9g",], aes(x = node, y = value)) + 
+ggplot(tmp[tmp$figure == "ED_Fig_9f",], aes(x = node, y = value)) + 
   geom_boxplot() + 
   geom_point(aes(colour = node), size = 2) +
   facet_grid(cols = vars(measure)) + 
@@ -81,6 +65,18 @@ ggplot(tmp[tmp$figure == "ED_Fig_9g",], aes(x = node, y = value)) +
 
 
 
+## ED Fig 9g
+
+```{r, fig.height = 8, fig.width = 5}
+ggplot(result[result$figure == "ED_Fig_9g",], aes(x = node, y = AUC)) + 
+  geom_boxplot() + 
+  geom_point(aes(colour = node), size = 2) +
+  facet_grid(rows = vars(other_spec)) + 
+  xlab("node") + 
+  theme_bw() + 
+  theme(legend.position = "bottom", axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
 
 
 
